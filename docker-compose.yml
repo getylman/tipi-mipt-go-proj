@@ -1,0 +1,81 @@
+services:
+
+  postgres-pricing:
+    image: postgres:16-alpine
+    container_name: pricer-postgres-pricing
+    environment:
+      POSTGRES_USER: pricer
+      POSTGRES_PASSWORD: pricer
+      POSTGRES_DB: pricing
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-pricing:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pricer -d pricing"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-ingestion:
+    image: postgres:16-alpine
+    container_name: pricer-postgres-ingestion
+    environment:
+      POSTGRES_USER: pricer
+      POSTGRES_PASSWORD: pricer
+      POSTGRES_DB: ingestion
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata-ingestion:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pricer -d ingestion"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pricing:
+    build:
+      context: .
+      dockerfile: pricing/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      HTTP_PORT: "8081"
+      LOG_LEVEL: "debug"
+      LOG_FORMAT: "text"
+      ENVIRONMENT: "dev"
+      DATABASE_URL: "postgres://pricer:pricer@postgres-pricing:5432/pricing?sslmode=disable"
+      MIGRATION_FILE: "/migrations/001_init.sql"
+    depends_on:
+      postgres-pricing:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  ingestion:
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      HTTP_PORT: "8080"
+      LOG_LEVEL: "debug"
+      LOG_FORMAT: "text"
+      ENVIRONMENT: "dev"
+      PRICING_ENGINE_URL: "http://pricing:8081"
+      DATABASE_URL: "postgres://pricer:pricer@postgres-ingestion:5433/ingestion?sslmode=disable"
+      MIGRATION_FILE: "/migrations/001_init.sql"
+    depends_on:
+      postgres-ingestion:
+        condition: service_healthy
+      pricing:
+        condition: service_healthy
+
+volumes:
+  pgdata-pricing:
+  pgdata-ingestion:
