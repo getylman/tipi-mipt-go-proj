@@ -1,0 +1,83 @@
+// checkconfig — утилита проверки конфига Ingestion Service.
+// Запускается отдельно без поднятия HTTP-сервера.
+//
+// Использование:
+//
+//	DATABASE_URL=postgres://... PRICING_ENGINE_URL=http://... go run ./cmd/checkconfig
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/cloud-pricer/ingestion/config"
+	shared "github.com/cloud-pricer/shared/config"
+)
+
+func main() {
+	fmt.Println("=== Ingestion Service — проверка конфига ===")
+	fmt.Println()
+
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Printf("  [FAIL] %v\n\n", err)
+		printHints()
+		os.Exit(1)
+	}
+
+	fmt.Println("  [OK] Конфиг валиден")
+	fmt.Println()
+	fmt.Println("  Сервер:")
+	fmt.Printf("    HTTP_PORT                = %s\n", cfg.HTTPPort)
+	fmt.Printf("    HTTP_READ_TIMEOUT        = %s\n", cfg.ReadTimeout)
+	fmt.Printf("    HTTP_WRITE_TIMEOUT       = %s\n", cfg.WriteTimeout)
+	fmt.Printf("    SHUTDOWN_TIMEOUT         = %s\n", cfg.ShutdownTimeout)
+	fmt.Println()
+	fmt.Println("  Логирование:")
+	fmt.Printf("    LOG_LEVEL                = %s\n", cfg.LogLevel)
+	fmt.Printf("    LOG_FORMAT               = %s\n", cfg.LogFormat)
+	fmt.Printf("    ENVIRONMENT              = %s\n", cfg.Environment)
+	fmt.Println()
+	fmt.Println("  Pricing Engine:")
+	fmt.Printf("    PRICING_ENGINE_URL       = %s\n", cfg.PricingEngineURL)
+	fmt.Printf("    PRICING_ENGINE_TIMEOUT   = %s\n", cfg.PricingEngineTimeout)
+	fmt.Println()
+	fmt.Println("  База данных:")
+	fmt.Printf("    DATABASE_URL             = %s\n", shared.MaskPassword(cfg.DatabaseURL))
+	fmt.Printf("    MIGRATION_FILE           = %s\n", cfg.MigrationFile)
+	fmt.Println()
+	fmt.Println("  Лимиты:")
+	fmt.Printf("    MAX_ITEMS                = %d\n", cfg.MaxItems)
+
+	if cfg.TracingEndpoint != "" {
+		fmt.Printf("\n  TRACING_ENDPOINT         = %s\n", cfg.TracingEndpoint)
+	} else {
+		fmt.Println("\n  TRACING_ENDPOINT         = (выключен)")
+	}
+
+	if cfg.IsDebug() {
+		fmt.Println()
+		fmt.Println("  [!] Debug-режим активен (ENVIRONMENT=dev или LOG_LEVEL=debug)")
+	}
+}
+
+func printHints() {
+	fmt.Println("  Обязательные переменные:")
+	fmt.Println("    DATABASE_URL            — postgres DSN")
+	fmt.Println("                              postgres://user:pass@host:5432/dbname?sslmode=disable")
+	fmt.Println("    PRICING_ENGINE_URL      — URL Pricing Engine")
+	fmt.Println("                              http://localhost:8081")
+	fmt.Println()
+	fmt.Println("  Опциональные (есть дефолты):")
+	fmt.Println("    HTTP_PORT               [8080]")
+	fmt.Println("    LOG_LEVEL               debug|info|warn|error  [info]")
+	fmt.Println("    LOG_FORMAT              text|json               [text]")
+	fmt.Println("    ENVIRONMENT             dev|prod                [dev]")
+	fmt.Println("    MAX_ITEMS               1..1000                 [50]")
+	fmt.Println("    PRICING_ENGINE_TIMEOUT  >= 1s                   [5s]")
+	fmt.Println("    MIGRATION_FILE                                  [./migrations/001_init.sql]")
+	fmt.Println("    HTTP_READ_TIMEOUT                               [10s]")
+	fmt.Println("    HTTP_WRITE_TIMEOUT                              [10s]")
+	fmt.Println("    SHUTDOWN_TIMEOUT                                [15s]")
+	fmt.Println("    TRACING_ENDPOINT        OTLP endpoint           []")
+}

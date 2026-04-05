@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "db/queries"
+    schema:  "migrations/001_init.sql"
+    gen:
+      go:
+        package:          "sqlcdb"
+        out:              "db/sqlc"
+        emit_json_tags:   true
+        emit_empty_slices: true
