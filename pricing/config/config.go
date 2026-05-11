@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"os"
 
 	shared "github.com/cloud-pricer/shared/config"
 )
@@ -40,4 +41,24 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("MIGRATION_FILE is required")
 	}
 	return nil
+}
+
+func MustValidate() *Config {
+	cfg, err := Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "config error: %v\n", err)
+		fmt.Fprintln(os.Stderr, `
+required:
+  DATABASE_URL   postgres://user:pass@host:5432/db?sslmode=disable
+
+optional (defaults):
+  HTTP_PORT          [8081]
+  LOG_LEVEL          debug|info|warn|error  [info]
+  LOG_FORMAT         text|json              [text]
+  ENVIRONMENT        dev|prod               [dev]
+  MIGRATION_FILE                            [./migrations/001_init.sql]
+  SHUTDOWN_TIMEOUT                          [15s]`)
+		os.Exit(1)
+	}
+	return cfg
 }

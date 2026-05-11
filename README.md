@@ -82,28 +82,29 @@ cloud-pricer/
 │
 ├── shared/                    # общие типы, логгер, ошибки
 ├── ingestion/                 # Ingestion Service (:8080)
-│   ├── cmd/
-│   ├── config/
+│   ├── cmd/main.go            # точка входа; config.MustValidate() в начале
+│   ├── config/                # Load() + MustValidate() (валидация при старте)
 │   ├── migrations/
 │   └── internal/
-│       ├── handler/
-│       ├── validator/
-│       ├── client/
-│       ├── invalid/
-│       └── mocks/
+│       ├── handler/           # HTTP-хендлеры + интерфейсы PricingClient, InvalidStore
+│       ├── validator/         # валидация запросов + тесты
+│       ├── client/            # реализация HTTP-клиента к Pricing Engine
+│       ├── invalid/           # репозиторий невалидных метрик
+│       └── mocks/             # моки для юнит-тестов handler
 │
 └── pricing/                   # Pricing Engine (:8081)
-    ├── cmd/
-    ├── config/
+    ├── cmd/main.go            # точка входа; config.MustValidate() в начале
+    ├── config/                # Load() + MustValidate() (валидация при старте)
     ├── migrations/
+    ├── integration_test.go    # интеграционные тесты (пропускаются без живых сервисов)
     ├── db/queries/            # SQL запросы (sqlc)
     ├── db/sqlc/               # сгенерированный код
     └── internal/
-        ├── handler/
-        ├── usage/
-        ├── estimate/
-        ├── repository/
-        └── mocks/
+        ├── handler/           # HTTP-хендлеры + интерфейс ProductLister
+        ├── usage/             # бизнес-логика usage + интерфейсы + тесты
+        ├── estimate/          # бизнес-логика estimate + интерфейс + тесты
+        ├── repository/        # реализации репозиториев (конкретные типы)
+        └── mocks/             # моки для юнит-тестов usage/estimate
 ```
 
 ## Переменные окружения

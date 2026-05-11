@@ -1,4 +1,4 @@
-package repository
+package usage
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 
 type ProductStore interface {
 	GetByIDs(ctx context.Context, ids []string) (map[string]types.Product, error)
-	ListAll(ctx context.Context) ([]types.Product, error)
 }
 
 type UserStore interface {

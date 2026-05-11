@@ -3,12 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
-
-	_ "github.com/lib/pq"
 
 	"github.com/cloud-pricer/ingestion/config"
 	"github.com/cloud-pricer/ingestion/internal/client"
@@ -16,13 +13,11 @@ import (
 	"github.com/cloud-pricer/ingestion/internal/invalid"
 	"github.com/cloud-pricer/ingestion/internal/validator"
 	"github.com/cloud-pricer/shared/logger"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("config: %v", err)
-	}
+	cfg := config.MustValidate()
 
 	log := logger.New(cfg.LogLevel, cfg.LogFormat)
 	log.Info("starting ingestion service", "port", cfg.HTTPPort)

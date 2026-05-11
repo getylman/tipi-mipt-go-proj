@@ -144,7 +144,7 @@ demo_integ() {
     echo ""
     check_services
 
-    if (cd pricing && go test ./tests/... -v 2>&1 | grep -E "PASS|FAIL|SKIP|ok|---"); then
+    if (cd pricing && go test . -v -run TestIntegration 2>&1 | grep -E "PASS|FAIL|SKIP|ok|---"); then
         ok "Интеграционные тесты прошли"
     else
         fail "Интеграционные тесты упали"

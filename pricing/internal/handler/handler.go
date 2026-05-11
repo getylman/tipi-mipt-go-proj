@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/cloud-pricer/pricing/internal/estimate"
-	"github.com/cloud-pricer/pricing/internal/repository"
 	"github.com/cloud-pricer/pricing/internal/usage"
 	"github.com/cloud-pricer/shared/apierror"
 	"github.com/cloud-pricer/shared/types"
@@ -16,14 +15,14 @@ type Handler struct {
 	log      *slog.Logger
 	usage    *usage.Service
 	estimate *estimate.Service
-	products *repository.ProductRepository
+	products ProductLister
 }
 
 func New(
 	log *slog.Logger,
 	usageSvc *usage.Service,
 	estimateSvc *estimate.Service,
-	products *repository.ProductRepository,
+	products ProductLister,
 ) *Handler {
 	return &Handler{log: log, usage: usageSvc, estimate: estimateSvc, products: products}
 }

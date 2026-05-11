@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/cloud-pricer/ingestion/internal/client"
-	"github.com/cloud-pricer/ingestion/internal/invalid"
 	"github.com/cloud-pricer/ingestion/internal/validator"
 	"github.com/cloud-pricer/shared/apierror"
 	"github.com/cloud-pricer/shared/types"
@@ -16,11 +14,11 @@ import (
 type Handler struct {
 	log       *slog.Logger
 	validator *validator.Validator
-	pricing   client.PricingAPI
-	invalid   invalid.Store
+	pricing   PricingClient
+	invalid   InvalidStore
 }
 
-func New(log *slog.Logger, v *validator.Validator, p client.PricingAPI, inv invalid.Store) *Handler {
+func New(log *slog.Logger, v *validator.Validator, p PricingClient, inv InvalidStore) *Handler {
 	if log == nil {
 		log = slog.New(slog.NewTextHandler(io.Discard, nil))
 	}

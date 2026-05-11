@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"time"
 
 	shared "github.com/cloud-pricer/shared/config"
@@ -39,6 +40,30 @@ func Load() (*Config, error) {
 		MigrationFile:        shared.GetEnv("MIGRATION_FILE", "./migrations/001_init.sql"),
 	}
 	return cfg, cfg.Validate()
+}
+
+func MustValidate() *Config {
+	cfg, err := Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "config error: %v\n", err)
+		fmt.Fprintf(os.Stderr, `
+required:
+  DATABASE_URL         postgres://user:pass@host:5433/db?sslmode=disable
+  PRICING_ENGINE_URL   http://localhost:8081
+
+optional (defaults):
+  HTTP_PORT                [8080]
+  LOG_LEVEL                debug|info|warn|error  [info]
+  LOG_FORMAT               text|json              [text]
+  ENVIRONMENT              dev|prod               [dev]
+  MAX_ITEMS                1..1000                [50]
+  PRICING_ENGINE_TIMEOUT   >=1s                   [5s]
+  MIGRATION_FILE                                  [./migrations/001_init.sql]
+  SHUTDOWN_TIMEOUT                                [15s]
+`)
+		os.Exit(1)
+	}
+	return cfg
 }
 
 func (c *Config) Validate() error {

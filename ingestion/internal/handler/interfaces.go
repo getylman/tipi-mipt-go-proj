@@ -1,4 +1,4 @@
-package client
+package handler
 
 import (
 	"context"
@@ -6,7 +6,11 @@ import (
 	"github.com/cloud-pricer/shared/types"
 )
 
-type PricingAPI interface {
+type PricingClient interface {
 	Usage(ctx context.Context, req *types.UsageRequest) (*types.UsageResponse, error)
 	Estimate(ctx context.Context, req *types.EstimateRequest) (*types.EstimateResponse, error)
+}
+
+type InvalidStore interface {
+	Save(rawPayload interface{}, errorReason string) error
 }

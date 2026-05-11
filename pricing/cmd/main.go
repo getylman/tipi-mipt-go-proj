@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 
@@ -15,10 +14,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("config: %v", err)
-	}
+	cfg := config.MustValidate()
 
 	log := logger.New(cfg.LogLevel, cfg.LogFormat)
 	log.Info("starting pricing engine", "port", cfg.HTTPPort)

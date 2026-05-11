@@ -4,20 +4,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cloud-pricer/pricing/internal/repository"
 	"github.com/cloud-pricer/shared/types"
 )
 
 type Service struct {
-	products    repository.ProductStore
-	users       repository.UserStore
-	consumption repository.ConsumptionStore
+	products    ProductStore
+	users       UserStore
+	consumption ConsumptionStore
 }
 
 func NewService(
-	products repository.ProductStore,
-	users repository.UserStore,
-	consumption repository.ConsumptionStore,
+	products ProductStore,
+	users UserStore,
+	consumption ConsumptionStore,
 ) *Service {
 	return &Service{products: products, users: users, consumption: consumption}
 }

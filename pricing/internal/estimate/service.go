@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cloud-pricer/pricing/internal/repository"
 	"github.com/cloud-pricer/shared/types"
 )
 
 type Service struct {
-	products repository.ProductStore
+	products ProductStore
 }
 
-func NewService(products repository.ProductStore) *Service {
+func NewService(products ProductStore) *Service {
 	return &Service{products: products}
 }
 
