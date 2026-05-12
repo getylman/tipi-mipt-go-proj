@@ -79,8 +79,8 @@ cmd_db_wait() {
     echo "  Ожидание готовности БД..."
     sleep 3
     for i in $(seq 1 30); do
-        if $DOCKER exec pricer-postgres-pricing   pg_isready -U "$DB_USER" -q 2>/dev/null && \
-           $DOCKER exec pricer-postgres-ingestion pg_isready -U "$DB_USER" -q 2>/dev/null; then
+        if $DOCKER exec pricer-postgres-pricing   pg_isready -U "$DB_USER" -d "$DB_PRICING"   -q 2>/dev/null && \
+           $DOCKER exec pricer-postgres-ingestion pg_isready -U "$DB_USER" -d "$DB_INGESTION" -q 2>/dev/null; then
             echo "  БД готовы"
             return 0
         fi
